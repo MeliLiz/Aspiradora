@@ -10,7 +10,8 @@ public class ComportamientoAutomatico : MonoBehaviour {
     public enum State {
         MAPEO,
         DFS,
-        REGRESANDO
+        REGRESANDO, 
+        TERMINADO
     }
 
     private State currentState;
@@ -42,6 +43,9 @@ public class ComportamientoAutomatico : MonoBehaviour {
             case State.REGRESANDO:
                 regresar();
                 break;
+            case State.TERMINADO:
+                terminado();
+                break;
         }
     }
 
@@ -59,22 +63,26 @@ public class ComportamientoAutomatico : MonoBehaviour {
             mapa.setPreV(verticeActual);   //Asignar a mapa el vértice nuevo al que nos vamos a mover, para crear las adyacencias necesarias.
             fp = false;
         }
-        if (Vector3.Distance(sensor.Ubicacion(), verticeActual.posicion) >= 0.04f) {
-            if (!look) {
-                transform.LookAt(verticeActual.posicion);
-                look = true;
-            }
-            if(sensor.TocandoPared()){
+        if(verticeActual != null){
+            if (Vector3.Distance(sensor.Ubicacion(), verticeActual.posicion) >= 0.04f) {
+                if (!look) {
+                    transform.LookAt(verticeActual.posicion);
+                    look = true;
+                }
+                if(sensor.TocandoPared()){
+                    look = false;
+                    fp = true;
+                    SetState(State.REGRESANDO);
+                }else{
+                    actuador.Adelante();
+                }
+            } else {
                 look = false;
                 fp = true;
-                SetState(State.REGRESANDO);
-            }else{
-                actuador.Adelante();
+                SetState(State.DFS);
             }
-        } else {
-            look = false;
-            fp = true;
-            SetState(State.DFS);
+        }else{
+            SetState(State.TERMINADO);
         }
     } 
 
@@ -95,22 +103,26 @@ public class ComportamientoAutomatico : MonoBehaviour {
 
     // Funciones de actualizacion especificas para cada estado
     void UpdateDFS() {
-        if (!sensor.FrenteLibre()) {
-            SetState(State.REGRESANDO);
-        }else{
+        //if (!sensor.FrenteLibre()) {
+          //  SetState(State.REGRESANDO);
+        //}else{
             SetState(State.MAPEO);
+        //}
+        if (sensor.DerechaLibre()) {
+            mapa.ColocarNodo(3);
         }
         if (sensor.IzquierdaLibre()) {
            mapa.ColocarNodo(1);
-        }
-        if (sensor.DerechaLibre()) {
-            mapa.ColocarNodo(3);
         }
         if (sensor.FrenteLibre()) {
             mapa.ColocarNodo(2);
         }
     }
 
+
+    void terminado(){
+        actuador.Detener();
+    }
 
 
     // Función para cambiar de estado
