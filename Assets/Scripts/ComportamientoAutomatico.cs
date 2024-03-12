@@ -3,40 +3,37 @@ using System.Collections.Generic;
 using UnityEngine;
 using System;
 
-public class ComportamientoAutomatico : MonoBehaviour {
-
+public class ComportamientoAutomatico : MonoBehaviour
+{
 
     //Enum para los estados
-    public enum State {
+    public enum State{
         MAPEO,
         DFS,
-        REGRESANDO, 
+        REGRESANDO,
         TERMINADO
     }
 
     private State currentState;
     private Sensores sensor;
-	private Actuadores actuador;
-	private Mapa mapa;
-    private Vertice verticeActual, verticeDestino, anterior;
+    private Actuadores actuador;
+    private Mapa mapa;
+    private Vertice verticeActual, verticeDestino;
     public bool fp = true, look;
-
-    public List<Vertice> recorridos = new List<Vertice>();
 
 
     void Start(){
         SetState(State.DFS);
         sensor = GetComponent<Sensores>();
-		actuador = GetComponent<Actuadores>();
+        actuador = GetComponent<Actuadores>();
         mapa = GetComponent<Mapa>();
         mapa.ColocarNodo(0);
         mapa.popStack(out verticeActual);
-        recorridos.Add(verticeActual);
     }
 
 
-    void FixedUpdate() {
-        switch (currentState) {
+    void FixedUpdate(){
+        switch (currentState){
             case State.MAPEO:
                 UpdateMAPEO();
                 break;
@@ -47,7 +44,6 @@ public class ComportamientoAutomatico : MonoBehaviour {
                 regresar();
                 break;
             case State.TERMINADO:
-                terminado();
                 break;
         }
     }
@@ -60,74 +56,54 @@ public class ComportamientoAutomatico : MonoBehaviour {
      * 3.- Hacer backtrack al siguiente vértice en la pila
      * 4.- Repetir hasta vaciar la pila
      */
-    void UpdateMAPEO() {
-        if (fp) {
-            anterior = verticeActual;
+    void UpdateMAPEO(){
+        if (fp){
             mapa.popStack(out verticeActual);
             mapa.setPreV(verticeActual);   //Asignar a mapa el vértice nuevo al que nos vamos a mover, para crear las adyacencias necesarias.
-            if(verticeActual!= null){
-                recorridos.Add(verticeActual);
-            }
             fp = false;
         }
-        if(verticeActual != null){
-            //if(verticeActual.vecinos.Contains(anterior)){
-            //if(anterior.padre != null && anterior.padre.vecinos.Contains(verticeActual)){
-              //regresar();
-            //}else{
-                if (Vector3.Distance(sensor.Ubicacion(), verticeActual.posicion) >= 0.04f) {
-                    if (!look) {
-                        transform.LookAt(verticeActual.posicion);
-                        look = true;
-                    }
-                    if(sensor.TocandoPared()){
-                        look = false;
-                        fp = true;
-                        SetState(State.REGRESANDO);
-                    }else{
-                        actuador.Adelante();
-                    }
-                } else {
-                    look = false;
-                    fp = true;
-                    SetState(State.DFS);
+        if (verticeActual != null){
+            if (Vector3.Distance(sensor.Ubicacion(), verticeActual.posicion) >= 0.04f){
+                if (!look){
+                    transform.LookAt(verticeActual.posicion);
+                    look = true;
                 }
-            //}
-            
-        }else{
-            SetState(State.TERMINADO);
+                actuador.Adelante();
+            }else{
+                look = false;
+                fp = true;
+                SetState(State.DFS);
+            }
         }
-    } 
+    }
 
     void regresar(){
         Vertice aux = verticeActual.padre;
-        if (Vector3.Distance(sensor.Ubicacion(), aux.posicion) >= 0.04f) {
-            if (!look) {
+        if (Vector3.Distance(sensor.Ubicacion(), aux.posicion) >= 0.04f){
+            if (!look){
                 transform.LookAt(aux.posicion);
                 look = true;
             }
             actuador.Adelante();
-        } else {
+        }else{
             look = false;
             fp = true;
             SetState(State.MAPEO);
         }
+
     }
 
     // Funciones de actualizacion especificas para cada estado
-    void UpdateDFS() {
-        //if (!sensor.FrenteLibre()) {
-          //  SetState(State.REGRESANDO);
-        //}else{
-            SetState(State.MAPEO);
-        //}
-        if (sensor.DerechaLibre()) {
+    void UpdateDFS(){
+
+        SetState(State.MAPEO);
+        if (sensor.DerechaLibre()){
             mapa.ColocarNodo(3);
         }
-        if (sensor.IzquierdaLibre()) {
-           mapa.ColocarNodo(1);
+        if (sensor.IzquierdaLibre()){
+            mapa.ColocarNodo(1);
         }
-        if (sensor.FrenteLibre()) {
+        if (sensor.FrenteLibre()){
             mapa.ColocarNodo(2);
         }
     }
@@ -139,7 +115,7 @@ public class ComportamientoAutomatico : MonoBehaviour {
 
 
     // Función para cambiar de estado
-    void SetState(State newState) {
+    void SetState(State newState){
         currentState = newState;
     }
 
