@@ -11,6 +11,7 @@ public class ComportamientoAutomatico : MonoBehaviour
         MAPEO,
         DFS,
         REGRESANDO,
+        TERMINAR,
         TERMINADO
     }
 
@@ -43,6 +44,9 @@ public class ComportamientoAutomatico : MonoBehaviour
                 break;
             case State.REGRESANDO:
                 regresar();
+                break;
+            case State.TERMINAR:
+                terminar();
                 break;
             case State.TERMINADO:
                 break;
@@ -82,6 +86,9 @@ public class ComportamientoAutomatico : MonoBehaviour
                     }
                 }
             }
+        }else{
+            SetState(State.TERMINAR);
+        
         }
     }
 
@@ -101,6 +108,14 @@ public class ComportamientoAutomatico : MonoBehaviour
             SetState(State.MAPEO);
         }
 
+    }
+
+    void terminar(){
+
+        regresar();
+        if(verticeActual.padre == null){
+            SetState(State.TERMINADO);
+        }
     }
 
     // Funciones de actualizacion especificas para cada estado
