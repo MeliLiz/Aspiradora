@@ -28,7 +28,8 @@ public class ComportamientoAutomatico : MonoBehaviour
         actuador = GetComponent<Actuadores>();
         mapa = GetComponent<Mapa>();
         mapa.ColocarNodo(0);
-        mapa.popStack(out verticeActual);
+        mapa.popStack(out verticeDestino);
+        verticeActual = verticeDestino;
     }
 
 
@@ -58,21 +59,28 @@ public class ComportamientoAutomatico : MonoBehaviour
      */
     void UpdateMAPEO(){
         if (fp){
-            mapa.popStack(out verticeActual);
-            mapa.setPreV(verticeActual);   //Asignar a mapa el vértice nuevo al que nos vamos a mover, para crear las adyacencias necesarias.
+            mapa.popStack(out verticeDestino);
+            mapa.setPreV(verticeDestino);   //Asignar a mapa el vértice nuevo al que nos vamos a mover, para crear las adyacencias necesarias.
             fp = false;
         }
-        if (verticeActual != null){
-            if (Vector3.Distance(sensor.Ubicacion(), verticeActual.posicion) >= 0.04f){
-                if (!look){
-                    transform.LookAt(verticeActual.posicion);
-                    look = true;
+        if (verticeDestino != null){
+            if(verticeDestino.padre != null){
+                if (verticeDestino.padre != verticeActual){
+                    SetState(State.REGRESANDO);
+                }else{
+                    if (Vector3.Distance(sensor.Ubicacion(), verticeDestino.posicion) >= 0.04f){
+                        if (!look){
+                            transform.LookAt(verticeDestino.posicion);
+                            look = true;
+                        }
+                        actuador.Adelante();
+                    }else{
+                        verticeActual = verticeDestino;
+                        look = false;
+                        fp = true;
+                        SetState(State.DFS);
+                    }
                 }
-                actuador.Adelante();
-            }else{
-                look = false;
-                fp = true;
-                SetState(State.DFS);
             }
         }
     }
@@ -86,8 +94,10 @@ public class ComportamientoAutomatico : MonoBehaviour
             }
             actuador.Adelante();
         }else{
+            verticeActual = verticeActual.padre;
+            //mapa.setPreV(verticeActual);
             look = false;
-            fp = true;
+            fp = false;
             SetState(State.MAPEO);
         }
 
@@ -106,11 +116,6 @@ public class ComportamientoAutomatico : MonoBehaviour
         if (sensor.FrenteLibre()){
             mapa.ColocarNodo(2);
         }
-    }
-
-
-    void terminado(){
-        actuador.Detener();
     }
 
 
