@@ -18,8 +18,10 @@ public class ComportamientoAutomatico : MonoBehaviour {
     private Sensores sensor;
 	private Actuadores actuador;
 	private Mapa mapa;
-    private Vertice verticeActual, verticeDestino;
+    private Vertice verticeActual, verticeDestino, anterior;
     public bool fp = true, look;
+
+    public List<Vertice> recorridos = new List<Vertice>();
 
 
     void Start(){
@@ -29,6 +31,7 @@ public class ComportamientoAutomatico : MonoBehaviour {
         mapa = GetComponent<Mapa>();
         mapa.ColocarNodo(0);
         mapa.popStack(out verticeActual);
+        recorridos.Add(verticeActual);
     }
 
 
@@ -59,28 +62,38 @@ public class ComportamientoAutomatico : MonoBehaviour {
      */
     void UpdateMAPEO() {
         if (fp) {
+            anterior = verticeActual;
             mapa.popStack(out verticeActual);
             mapa.setPreV(verticeActual);   //Asignar a mapa el vértice nuevo al que nos vamos a mover, para crear las adyacencias necesarias.
+            if(verticeActual!= null){
+                recorridos.Add(verticeActual);
+            }
             fp = false;
         }
         if(verticeActual != null){
-            if (Vector3.Distance(sensor.Ubicacion(), verticeActual.posicion) >= 0.04f) {
-                if (!look) {
-                    transform.LookAt(verticeActual.posicion);
-                    look = true;
-                }
-                if(sensor.TocandoPared()){
+            //if(verticeActual.vecinos.Contains(anterior)){
+            //if(anterior.padre != null && anterior.padre.vecinos.Contains(verticeActual)){
+              //regresar();
+            //}else{
+                if (Vector3.Distance(sensor.Ubicacion(), verticeActual.posicion) >= 0.04f) {
+                    if (!look) {
+                        transform.LookAt(verticeActual.posicion);
+                        look = true;
+                    }
+                    if(sensor.TocandoPared()){
+                        look = false;
+                        fp = true;
+                        SetState(State.REGRESANDO);
+                    }else{
+                        actuador.Adelante();
+                    }
+                } else {
                     look = false;
                     fp = true;
-                    SetState(State.REGRESANDO);
-                }else{
-                    actuador.Adelante();
+                    SetState(State.DFS);
                 }
-            } else {
-                look = false;
-                fp = true;
-                SetState(State.DFS);
-            }
+            //}
+            
         }else{
             SetState(State.TERMINADO);
         }
