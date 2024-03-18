@@ -6,6 +6,8 @@ public class Vertice{
 
     public List<Vertice> vecinos = new List<Vertice>();
     public int id;
+
+    public float f, g, h;
     public bool visitado;
     public Vertice padre;
     public Vertice camino;
@@ -15,6 +17,7 @@ public class Vertice{
         id = newId;
         posicion = newPos;
         visitado = false;
+        f = g = h = float.MaxValue;
     }
 
     public void setPadre(Vertice padre) {
