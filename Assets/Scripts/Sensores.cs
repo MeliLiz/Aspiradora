@@ -114,7 +114,7 @@ public class Sensores : MonoBehaviour{
         return radar.CercaDeBasura();
     }
 
-    public float Bateria(){
+    public float getBateria(){
         return bateria.NivelDeBateria();
     }
 

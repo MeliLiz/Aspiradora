@@ -21,7 +21,7 @@ public class ComportamientoAutomatico : MonoBehaviour
         //////////////////////////
     }
 
-    private State currentState;
+    public State currentState;
     private Sensores sensor;
     private Actuadores actuador;
     private Mapa mapa;
@@ -49,7 +49,7 @@ public class ComportamientoAutomatico : MonoBehaviour
 
     void FixedUpdate(){
 
-        if (!BateriaSuficiente()){
+        if (currentState!=State.CARGANDO && currentState != State.YENDOABASE && !BateriaSuficiente()){
             anterior = currentState;
             SetState(State.YENDOABASE);
         }
@@ -172,7 +172,7 @@ public class ComportamientoAutomatico : MonoBehaviour
     
     // Función para saber si tiene bateria suficiente para seguir.
     bool BateriaSuficiente(){
-        return sensor.Bateria() > 20;
+        return sensor.getBateria() > 20;
     }
 
     
@@ -207,7 +207,7 @@ public class ComportamientoAutomatico : MonoBehaviour
 
     // Función para que el agente cargue su batería
     void CargarBateria(){
-        if(sensor.Bateria() < sensor.MaxBateria()){
+        if(sensor.getBateria() < sensor.MaxBateria()-1){
             actuador.CargarBateria();
         }else{
             SetState(State.REGRESANDODECARGA);
@@ -216,6 +216,9 @@ public class ComportamientoAutomatico : MonoBehaviour
 
     void regresarDeCargarse(){
         if(indiceCamino != -1){ // Si todavía no hemos llegado al vértice en el que nos quedamos
+            if(indiceCamino ==camino.Count){
+                indiceCamino--;
+            }
             if (Vector3.Distance(sensor.Ubicacion(), camino[indiceCamino].posicion) >= 0.04f){
                 transform.LookAt(camino[indiceCamino].posicion);
                 actuador.Adelante();
