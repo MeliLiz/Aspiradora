@@ -87,10 +87,12 @@ public class Actuadores : MonoBehaviour{
         sensor.SetCercaDeBasura(false);
     }
 
+
     /**
      * Llama a laa función CargarBateria del script de Bateria.
      */
     public void CargarBateria(){
         bateria.Cargar();
     }
+
 }

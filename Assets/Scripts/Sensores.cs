@@ -118,6 +118,10 @@ public class Sensores : MonoBehaviour{
         return bateria.NivelDeBateria();
     }
 
+    public float MaxBateria(){
+        return bateria.capacidadMaximaBateria;
+    }
+
     // Algunos otros métodos auxiliares que pueden ser de apoyo
 
     public GameObject GetBasura(){

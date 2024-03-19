@@ -12,7 +12,13 @@ public class ComportamientoAutomatico : MonoBehaviour
         DFS,
         REGRESANDO,
         TERMINAR,
-        TERMINADO
+        TERMINADO,
+
+        //////////////////////////
+        CARGANDO,
+        YENDOABASE,
+        REGRESANDODECARGA
+        //////////////////////////
     }
 
     private State currentState;
@@ -21,6 +27,13 @@ public class ComportamientoAutomatico : MonoBehaviour
     private Mapa mapa;
     private Vertice verticeActual, verticeDestino;
     public bool fp = true, look;
+
+    //////////////////////////
+    private State anterior;
+    public List<Vertice> camino = new List<Vertice>();
+    public Vertice actualCamino; 
+    public int indiceCamino = 0;
+    //////////////////////////
 
 
     void Start(){
@@ -35,6 +48,12 @@ public class ComportamientoAutomatico : MonoBehaviour
 
 
     void FixedUpdate(){
+
+        if (!BateriaSuficiente()){
+            anterior = currentState;
+            SetState(State.YENDOABASE);
+        }
+
         switch (currentState){
             case State.MAPEO:
                 UpdateMAPEO();
@@ -49,6 +68,15 @@ public class ComportamientoAutomatico : MonoBehaviour
                 terminar();
                 break;
             case State.TERMINADO:
+                break;
+            case State.YENDOABASE:
+                RegresarABase();
+                break;
+            case State.CARGANDO:
+                CargarBateria();
+                break;
+            case State.REGRESANDODECARGA:
+                regresarDeCargarse();
                 break;
         }
     }
@@ -137,6 +165,71 @@ public class ComportamientoAutomatico : MonoBehaviour
     // Función para cambiar de estado
     void SetState(State newState){
         currentState = newState;
+    }
+
+
+    //////////////////////////
+    
+    // Función para saber si tiene bateria suficiente para seguir.
+    bool BateriaSuficiente(){
+        return sensor.Bateria() > 20;
+    }
+
+    
+    // Función para que el agente regrese a la base usando A* si no tiene bateria suficiente
+    void RegresarABase(){
+
+        if(camino.Count == 0){
+            // Buscar el camino a la base
+            if (mapa.mapa.AStar(verticeActual, mapa.baseCarga)){
+                camino = mapa.mapa.camino;
+                //mapa.DrawPath();
+            }else{
+                Debug.Log("No hay camino");
+            }
+        }else{
+            if(indiceCamino != camino.Count){
+                // Moverse al siguiente vertice del camino
+                if (Vector3.Distance(sensor.Ubicacion(), camino[indiceCamino].posicion) >= 0.04f){ // Si no se ha llegado al vertice
+                    transform.LookAt(camino[indiceCamino].posicion);
+                    actuador.Adelante();
+                }else{ // Si ya se llego al vertice
+                    actualCamino = camino[indiceCamino];
+                    indiceCamino++;
+                }
+            }else{
+                SetState(State.CARGANDO);
+            }
+
+        }
+
+    }
+
+    // Función para que el agente cargue su batería
+    void CargarBateria(){
+        if(sensor.Bateria() < sensor.MaxBateria()){
+            actuador.CargarBateria();
+        }else{
+            SetState(State.REGRESANDODECARGA);
+        }
+    }
+
+    void regresarDeCargarse(){
+        if(indiceCamino != -1){ // Si todavía no hemos llegado al vértice en el que nos quedamos
+            if (Vector3.Distance(sensor.Ubicacion(), camino[indiceCamino].posicion) >= 0.04f){
+                transform.LookAt(camino[indiceCamino].posicion);
+                actuador.Adelante();
+            }else{
+                actualCamino = camino[indiceCamino];
+                indiceCamino--;
+            }
+        }else{
+            indiceCamino=0;
+            camino = new List<Vertice>();
+            actualCamino = null;
+            SetState(anterior);
+            //anterior = null;
+        }
     }
 
 }
