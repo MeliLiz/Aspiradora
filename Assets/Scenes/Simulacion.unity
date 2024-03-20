@@ -1394,7 +1394,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 0b0b22a61736ae3dea1d5ec334b22d4b, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  longitudDeRayo: 4
+  longitudDeRayo: 3
   radio: 0.5
   obstaculos:
     serializedVersion: 2
@@ -1987,7 +1987,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 0
+  m_IsActive: 1
 --- !u!4 &1891945159
 Transform:
   m_ObjectHideFlags: 0
@@ -2059,7 +2059,7 @@ MonoBehaviour:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1902013074}
-  m_Enabled: 0
+  m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: affd3433e96b381b19936d68d49dcaa3, type: 3}
   m_Name: 
@@ -2119,7 +2119,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: aba189072d89867ff8e1aa317f683460, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  vel: 3
+  vel: 5
   velRot: 3
 --- !u!114 &1902013080
 MonoBehaviour:
@@ -2133,8 +2133,10 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 7fa4cfdf36c9d98cbbcba883009c6196, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  currentState: 0
   fp: 1
   look: 1
+  indiceCamino: 0
 --- !u!114 &1902013081
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -2153,7 +2155,7 @@ MonoBehaviour:
   cont: -1
   tam: 0
   canSetNode: 1
-  granularidad: 4
+  granularidad: 3
 --- !u!1 &1958427751
 GameObject:
   m_ObjectHideFlags: 0
